@@ -1,19 +1,30 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
-/**
- * Task T2.1: Estrutura da rota POST /api/v1/convert
- *
- * Esta rota (ainda) não processa arquivos, apenas confirma
- * que foi alcançada corretamente (placeholder).
- */
-router.post('/convert', (req, res) => {
+router.post(
+  '/convert', 
   
-  // Retorna HTTP 200 OK com o JSON de placeholder.
-  res.status(200).json({
-    message: "Endpoint /api/v1/convert alcançado com sucesso."
-  });
+  upload.fields([{ name: 'image', maxCount: 1 }]), 
+  
+  (req, res) => {
+        
+    const imageFile = req.files.image ? req.files.image[0] : null;
+    const targetFormat = req.body.targetFormat;
 
-});
+    if (!imageFile || !targetFormat) {
+      return res.status(400).json({ error: "Faltando 'image' ou 'targetFormat'." });
+    }
+
+    res.status(200).json({
+      message: "Upload recebido com sucesso.",
+      originalFilename: imageFile.originalname,
+      targetFormat: targetFormat
+    });
+
+  }
+);
 
 module.exports = router;
