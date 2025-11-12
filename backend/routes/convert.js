@@ -4,13 +4,27 @@ const multer = require('multer');
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp'
+];
+
+const fileFilter = (req, file, cb) => {
+  if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+    cb(null, true); 
+  } else {
+    cb(new Error('Formato de arquivo não suportado'), false);
+  }
+};
+
 const storage = multer.memoryStorage();
 
 const upload = multer({ 
   storage: storage,
-  limits: { fileSize: MAX_FILE_SIZE }
+  limits: { fileSize: MAX_FILE_SIZE },
+  fileFilter: fileFilter
 });
-
 
 router.post(
   '/convert', 
@@ -27,9 +41,10 @@ router.post(
     }
 
     res.status(200).json({
-      message: "Upload (dentro do limite) recebido com sucesso.",
+      message: "Upload (válido) recebido com sucesso.",
       originalFilename: imageFile.originalname,
-      targetFormat: targetFormat
+      targetFormat: targetFormat,
+      mimeType: imageFile.mimetype
     });
   }
 );

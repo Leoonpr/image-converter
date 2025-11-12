@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MulterError } = require('multer'); 
+const { MulterError } = require('multer');
 
 const convertRoutes = require('./routes/convert');
 const app = express();
@@ -25,7 +25,13 @@ app.use((err, req, res, next) => {
     }
   }
 
-  console.error(err.stack); 
+  if (err.message === 'Formato de arquivo não suportado') {
+    return res.status(400).json({ 
+      error: "Formato de arquivo não suportado. Apenas imagens (JPG, PNG, WEBP) são permitidas." 
+    });
+  }
+
+  console.error(err.stack);
   res.status(500).json({ error: 'Ocorreu um erro interno no servidor.' });
 });
 
